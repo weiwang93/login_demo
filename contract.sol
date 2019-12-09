@@ -21,63 +21,79 @@ contract owned {
     }
 }
 
-contract mall is owned {
+contract logContract is owned {
 
-    /* Struct for one commodity */
-    struct Commodity {
-        uint commodityId;            // Unique id for a commodity
-        uint seedBlock;         // Block number whose hash as random seed
-        string MD5;         // MD5 of full content
+    /* Struct for one app */
+    struct App {
+        bool isActive;
+        address[] authAdmin;
     }
 
-    uint commodityNum;
-    /* This notes all commodities and a map from commodityId to commodityIdx */
-    mapping(uint => Commodity) commodities;
-    mapping(uint => uint) indexMap;
+    address[] admin;
+    mapping(string => App) apps;
 
     /** constructor */
     constructor() public {
-        commodityNum = 1;
+        admin.push(owner);
     }
 
-    /**
-     * Initialize a new Commodity
-     */
-    function newCommodity(uint commodityId, uint seedBlock, string MD5) onlyOwner public returns (uint commodityIndex) {
-        require(indexMap[commodityId] == 0);             // commodityId should be unique
-        commodityIndex = commodityNum++;
-        indexMap[commodityId] = commodityIndex;
-        commodities[commodityIndex] = Commodity(commodityId, seedBlock, MD5);
+
+    // admin related
+    function isAdmin(address _address) public view returns(int idx) {
+        for (uint i = 0; i<=admin.length-1; i++){
+            if(_address == admin[i]) {
+                return int(i);
+            }
+        }
+        return -1;
     }
 
-    /**
-     * Get commodity info by index
-     * Only can be called by newOwner
-     */
-    function getCommodityInfoByIndex(uint commodityIndex) onlyOwner public view returns (uint commodityId, uint seedBlock, string MD5) {
-        require(commodityIndex < commodityNum);               // should exist
-        require(commodityIndex >= 1);                    // should exist
-        commodityId = commodities[commodityIndex].commodityId;
-        seedBlock = commodities[commodityIndex].seedBlock;
-        MD5 = commodities[commodityIndex].MD5;
+    modifier onlyAdmin {
+        require(isAdmin(msg.sender) != -1);
+        _;
     }
 
-    /**
-     * Get commodity info by commodity id
-     * Only can be called by newOwner
-     */
-    function getCommodityInfoById(uint commodityId) public view returns (uint commodityIndex, uint seedBlock, string MD5) {
-        commodityIndex = indexMap[commodityId];
-        require(commodityIndex < commodityNum);              // should exist
-        require(commodityIndex >= 1);                   // should exist
-        seedBlock = commodities[commodityIndex].seedBlock;
-        MD5 = commodities[commodityIndex].MD5;
+    function addAdmin(address _address) onlyAdmin public {
+        // _address already in admin
+        if(isAdmin(_address) != -1) {
+            return;
+        }
+        admin.push(_address);
     }
 
-    /**
-     * Get the number of commodities
-     */
-    function getCommodityNum() onlyOwner public view returns (uint num) {
-        num = commodityNum - 1;
+    function delAdmin(address _address) onlyOwner public {
+        int idx = isAdmin(_address);
+        // _address is not admin
+        if(idx == -1) {
+            return;
+        }
+        uint index = uint(idx);
+        if (index >= admin.length) {
+            return;
+        }
+        admin[index] = admin[admin.length-1];
+        delete admin[admin.length-1];
+        admin.length--;
+    }
+
+
+    function getAllAdmin() public view returns(address[] list) {
+        list = admin;
+    }
+
+    // app related
+    function authApp(string appId) onlyAdmin public {
+        apps[appId].authAdmin.push(msg.sender);
+        if(apps[appId].authAdmin.length >= 2) {
+            apps[appId].isActive = true;
+        }
+    }
+
+    function addApp(string appId) onlyAdmin public{
+        apps[appId] = App({isActive:false, authAdmin: new address[](0)});
+    }
+
+    function getAppStatus(string appId) public view returns(bool status) {
+        status = apps[appId].isActive;
     }
 }
