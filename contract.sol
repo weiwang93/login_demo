@@ -26,7 +26,7 @@ library StringUtils {
     /// @dev Does a byte-by-byte lexicographical comparison of two strings.
     /// @return a negative number if `_a` is smaller, zero if they are equal
     /// and a positive numbe if `_b` is smaller.
-    function compare(string _a, string _b) returns (int) {
+    function compare(string _a, string _b) public returns (int) {
         bytes memory a = bytes(_a);
         bytes memory b = bytes(_b);
         uint minLength = a.length;
@@ -45,7 +45,7 @@ library StringUtils {
             return 0;
     }
     /// @dev Compares two strings and returns true iff they are equal.
-    function equal(string _a, string _b) returns (bool) {
+    function equal(string _a, string _b) public returns (bool) {
         return compare(_a, _b) == 0;
     }
 }
@@ -53,7 +53,7 @@ library StringUtils {
 library addressUtils {
     /// return index if _address in addressList
     /// return -1 if _address not in addressList
-    function getAddressIndex(address _address, address[] addressList) returns (int){
+    function getAddressIndex(address _address, address[] addressList) public returns (int){
         /// if addressList is empty
         if(addressList.length == 0) {
             return -1;
