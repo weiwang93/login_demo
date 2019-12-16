@@ -111,11 +111,11 @@ class MongoDao():
     def update_admin_status(self, valid_admin):
         self.admin_collection.update(
             {"admin_address": {"$in": valid_admin}},
-            {"$set": { "status":"invalid",  "update_time":self.get_time()} }
+            {"$set": { "status":"valid",  "update_time":self.get_time()} }
         )
         self.admin_collection.update(
             {"admin_address": {"$nin": valid_admin}},
-            {"$set": { "status":"valid",  "update_time":self.get_time()} }
+            {"$set": { "status":"invalid",  "update_time":self.get_time()} }
         )
 
     # **********************
