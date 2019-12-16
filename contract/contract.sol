@@ -2,7 +2,7 @@
  *Submitted for verification at Etherscan.io on 2018-11-27
 */
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.26;
 pragma experimental ABIEncoderV2;
 
 contract owned {
@@ -26,7 +26,7 @@ library StringUtils {
     /// @dev Does a byte-by-byte lexicographical comparison of two strings.
     /// @return a negative number if `_a` is smaller, zero if they are equal
     /// and a positive numbe if `_b` is smaller.
-    function compare(string _a, string _b) public returns (int) {
+    function compare(string _a, string _b) internal returns (int) {
         bytes memory a = bytes(_a);
         bytes memory b = bytes(_b);
         uint minLength = a.length;
@@ -45,21 +45,19 @@ library StringUtils {
             return 0;
     }
     /// @dev Compares two strings and returns true iff they are equal.
-    function equal(string _a, string _b) public returns (bool) {
+    function equal(string _a, string _b) internal returns (bool) {
         return compare(_a, _b) == 0;
     }
-}
 
-library addressUtils {
-    /// return index if _address in addressList
-    /// return -1 if _address not in addressList
-    function getAddressIndex(address _address, address[] addressList) public returns (int){
+    /// return index if string in StringList
+    /// return -1 if string not in StringList
+    function getStringIndex(string _string, string[] StringList) internal returns (int){
         /// if addressList is empty
-        if(addressList.length == 0) {
+        if(StringList.length == 0) {
             return -1;
         }
-        for (uint i = 0; i <= addressList.length-1; i++){
-            if(_address == addressList[uint(i)]) {
+        for (uint i = 0; i <= StringList.length-1; i++){
+            if(_address == StringList[uint(i)]) {
                 return int(i);
             }
         }
@@ -77,6 +75,7 @@ contract loginContract is owned {
     address[] adminList ;
     mapping(string => App) appList;
     string[] appNameList;
+    string[] authedAppNameList;
 
     /** constructor */
     constructor() public {
@@ -147,16 +146,33 @@ contract loginContract is owned {
         appList[appName].authAdmin.push(msg.sender);
         if(appList[appName].authAdmin.length >= 2) {
             appList[appName].isActive = true;
+            authedAppNameList.push(appName);
         }
     }
 
-    function prohibitApp(string appName) onlyAdmin {
+    function prohibitApp(string appName) onlyAdmin public{
         require(isAppExists(appName), "app not exists");
         appList[appName].isActive = false;
         delete appList[appName].authAdmin;
+        for(uint i = 0; i < authedAppNameList.length; i++) {
+            if(StringUtils.equal(appName, authedAppNameList[i])) {
+                authedAppNameList[i] = authedAppNameList[authedAppNameList.length - 1];
+                break;
+            }
+        }
+        delete authedAppNameList[authedAppNameList.length-1];
+        authedAppNameList.length--;
     }
 
     function getAppStatus(string appName) public view returns(App) {
         return appList[appName];
+    }
+
+    function getAuthenticatedApp() public view returns(string[]) {
+        return authedAppNameList;
+    }
+
+    function getAllApp() public view returns(string[]) {
+        return appNameList;
     }
 }

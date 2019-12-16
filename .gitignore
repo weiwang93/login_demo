@@ -1,0 +1,9 @@
+.DS_Store
+logs/
+scripts/.trash/
+**/.ipynb_checkpoints/
+scripts/**/data/
+data/hotTopics/
+.idea/
+*.pyc
+venv/
