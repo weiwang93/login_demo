@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block customcss %}
+<style>
+    body {
+        padding-top: 5rem;
+    }
+</style>
+{% end %}
+
+{%  block content %}
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">login_demo</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+              <a class="nav-link active" href="/adminView?user_address={{user_address}}" target="_self">admin列表</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link active" href="/transactionView?user_address={{user_address}}" target="_self">transaction列表</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link active" href="/appView?user_address={{user_address}}" target="_self">app列表</a>
+          </li>
+      </ul>
+    </div>
+  </nav>
+
+    <main role="main" class="container">
+        <h5>
+          <font color="#FF0000">current user: {{user_address}}</font>
+        </h5>
+
+
+        <div class="col" style="margin-top:20px;">
+          <table class="table">
+            <tr>
+                {% for key in profile %}
+                  <th>{{key}}</th>
+                {% end %}
+            </tr>
+                {% for transaction in transactions %}
+                    <tr>
+                        {% for key in profile %}
+                          {% if key == "transaction_hash" %}
+                            <td>
+                              <a href="https://ropsten.etherscan.io/tx/{{transaction[key]}}">
+                                {{ transaction[key] }}
+                              </a>
+                            </td>
+                          {% else %}
+                            <td scope="col">
+                                {% if key in transaction %}
+                                  {{ transaction[key] }}
+                                {% else %}
+                                    None
+                                {% end%}
+                            </td>
+                          {% end %}
+
+                        {% end %}
+                    </tr>
+                {% end %}
+            </table>
+        </div>
+
+{%  end %}
+
+{% block customjs %}
+{% end %}

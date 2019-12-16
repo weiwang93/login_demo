@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block customcss %}
+<style>
+    body {
+        padding-top: 5rem;
+    }
+</style>
+{% end %}
+
+{%  block content %}
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">login_demo</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+              <a class="nav-link active" href="/adminView?user_address={{user_address}}" target="_self">admin列表</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link active" href="/transactionView?user_address={{user_address}}" target="_self">transaction列表</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link active" href="/appView?user_address={{user_address}}" target="_self">app列表</a>
+          </li>
+      </ul>
+    </div>
+  </nav>
+
+    <main role="main" class="container">
+        <div class="col">
+            {% if isValid == 1 %}
+            <div id="validate-result" class="alert alert-success" role="alert">{{ msg }}</div>
+            {% elif isValid == 0 %}
+                <div id="validate-result" class="alert alert-danger" role="alert">{{ msg }}</div>
+            {% end %}
+        </div>
+        <h5>
+            <font color="#FF0000">current user: {{user_address}}</font>
+          </h5>
+        <div class="col">
+
+            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#addAdmin">
+              添加admin
+            </button>
+        </div>
+
+
+        <div class="col" style="margin-top:20px;">
+          <h5>
+            <font color="#FF0000">valid admin</font>
+          </h5>
+          <table class="table">
+            <tr>
+                {% for key in profile %}
+                  <th>{{key}}</th>
+                {% end %}
+                <th>操作</th>
+            </tr>
+                {% for admin in valid_admin %}
+                    <tr>
+                        {% for key in profile %}
+                          <td scope="col">
+                              {% if key in admin %}
+                                  {{ admin[key] }}
+                              {% else %}
+                                  None
+                              {% end%}
+                          </td>
+                        {% end %}
+                        {%if admin['admin_address'] != user_address%}
+                          <td>
+                              <form method="get" class="deleteAdmin" action="/deleteAdmin">
+                                  <input type="hidden" name="admin_address" value="{{ admin['admin_address'] }}">
+                                  <input type="hidden" name="sender" value="{{ user_address }}">
+                                  <button type="submit" class="btn btn-outline-danger">删除</button>
+                              </form>
+                          </td>
+                        {% end %}
+                    </tr>
+                {% end %}
+            </table>
+        </div>
+
+        <div class="col" style="margin-top:20px;">
+            <h5>
+              <font color="#FF0000">pending admin</font>
+            </h5>
+            <table class="table">
+              <tr>
+                  {% for key in profile %}
+                    <th>{{key}}</th>
+                  {% end %}
+              </tr>
+                  {% for admin in pending_admin %}
+                      <tr>
+                          {% for key in profile %}
+                            <td scope="col">
+                                {% if key in admin %}
+                                    {{ admin[key] }}
+                                {% else %}
+                                    None
+                                {% end%}
+                            </td>
+                          {% end %}
+                      </tr>
+                  {% end %}
+              </table>
+          </div>
+
+          <div class="col" style="margin-top:20px;">
+              <h5>
+                <font color="#FF0000">invalid admin</font>
+              </h5>
+                <table class="table">
+                    <tr>
+                        {% for key in profile %}
+                          <th>{{key}}</th>
+                        {% end %}
+                    </tr>
+                    {% for admin in invalid_admin %}
+                        <tr>
+                            {% for key in profile %}
+                              <td scope="col">
+                                  {% if key in admin %}
+                                      {{ admin[key] }}
+                                  {% else %}
+                                      None
+                                  {% end%}
+                              </td>
+                            {% end %}
+                        </tr>
+                    {% end %}
+                </table>
+            </div>
+
+        <div class="modal fade" id="addAdmin" tabindex="-1" role="dialog" aria-labelledby="addAdminLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addAdminLabel">添加admin</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                  <form method="post" action="/addAdmin" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label"> admin地址 </label>
+                            <div class="col-sm-10">
+                              <input name="admin_address" class="form-control" type="text" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label"> admin私钥 </label>
+                            <div class="col-sm-10">
+                              <input name="admin_private_key" class="form-control" type="text" required>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="sender" value="{{user_address}}">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary">提交</button>
+                    </div>
+
+                  </form>
+              </div>
+            </div>
+          </div>
+
+{%  end %}
+
+{% block customjs %}
+<script>
+    $("#validate-result").fadeOut(5000);
+
+    $(document).ready(function() {
+      $(".deleteAdmin").submit(
+          function() {
+                return confirm("确认删除该admin吗？");
+            }
+        );
+      });
+</script>
+{% end %}

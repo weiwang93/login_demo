@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block customcss %}
+<style>
+    body {
+        padding-top: 5rem;
+    }
+</style>
+{% end %}
+
+{%  block content %}
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">login_demo</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+              <a class="nav-link active" href="/adminView?user_address={{user_address}}" target="_self">admin列表</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link active" href="/transactionView?user_address={{user_address}}" target="_self">transaction列表</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link active" href="/appView?user_address={{user_address}}" target="_self">app列表</a>
+          </li>
+      </ul>
+    </div>
+  </nav>
+
+    <main role="main" class="container">
+        <div class="col">
+            {% if isValid == 1 %}
+            <div id="validate-result" class="alert alert-success" role="alert">{{ msg }}</div>
+            {% elif isValid == 0 %}
+                <div id="validate-result" class="alert alert-danger" role="alert">{{ msg }}</div>
+            {% end %}
+        </div>
+        <h5>
+            <font color="#FF0000">current user: {{user_address}}</font>
+          </h5>
+        <div class="col">
+            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#addApp">
+              添加app
+            </button>
+        </div>
+
+
+        <div class="col" style="margin-top:20px;">
+          <h5>
+            <font color="#FF0000">已认证app</font>
+          </h5>
+          <table class="table">
+            <tr>
+                {% for key in profile %}
+                  <th>{{key}}</th>
+                {% end %}
+                {% if is_admin %}
+                  <th>操作</th>
+                {% end %}
+            </tr>
+                {% for app_name in apps_status["authenticated_apps"] %}
+                    <tr>
+                        <td>{{app_name}}</td>
+                        <td>authenticated</td>
+                        <td>{{apps_status["update_time"]}}</td>
+                        {% if is_admin %}
+                          <td>
+                              <form method="POST" class="prohibitApp" action="/prohibitApp">
+                                  <input type="hidden" name="app_name" value="{{ app_name }}">
+                                  <input type="hidden" name="sender" value="{{ user_address }}">
+                                  <button type="submit" class="btn btn-outline-danger">取消认证</button>
+                              </form>
+                          </td>
+                        {% end %}
+                    </tr>
+                {% end %}
+            </table>
+        </div>
+
+        <div class="col" style="margin-top:20px;">
+            <h5>
+              <font color="#FF0000">未认证app</font>
+            </h5>
+            <table class="table">
+              <tr>
+                  {% for key in profile %}
+                    <th>{{key}}</th>
+                  {% end %}
+                  {% if is_admin %}
+                    <th>操作</th>
+                  {% end %}
+              </tr>
+                  {% for app_name in apps_status["nonauthed_apps"] %}
+                      <tr>
+                          <td>{{app_name}}</td>
+                          <td>nonauthed</td>
+                          <td>{{apps_status["update_time"]}}</td>
+                          {% if is_admin %}
+                            <td>
+                                <form method="POST" class="authorizeApp" action="/authorizeApp">
+                                    <input type="hidden" name="app_name" value="{{ app_name }}">
+                                    <input type="hidden" name="sender" value="{{ user_address }}">
+                                    <button type="submit" class="btn btn-outline-danger">认证</button>
+                                </form>
+                            </td>
+                          {% end %}
+                      </tr>
+                  {% end %}
+              </table>
+          </div>
+
+        <div class="modal fade" id="addApp" tabindex="-1" role="dialog" aria-labelledby="addAppLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addAppLabel">添加app</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                  <form method="post" action="/addApp" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label"> app名称 </label>
+                            <div class="col-sm-10">
+                              <input name="app_name" class="form-control" type="text" required>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="sender" value="{{user_address}}">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary">提交</button>
+                    </div>
+
+                  </form>
+              </div>
+            </div>
+          </div>
+
+{%  end %}
+
+{% block customjs %}
+<script>
+    $("#validate-result").fadeOut(5000);
+    $(document).ready(function() {
+      $(".prohibitApp").submit(
+          function() {
+                return confirm("确认取消认证该app吗？");
+            }
+        );
+      });
+</script>
+{% end %}
