@@ -48,16 +48,18 @@ library StringUtils {
     function equal(string _a, string _b) internal returns (bool) {
         return compare(_a, _b) == 0;
     }
+}
 
-    /// return index if string in StringList
-    /// return -1 if string not in StringList
-    function getStringIndex(string _string, string[] StringList) internal returns (int){
+library addressUtils {
+    /// return index if _address in addressList
+    /// return -1 if _address not in addressList
+    function getAddressIndex(address _address, address[] addressList) internal returns (int){
         /// if addressList is empty
-        if(StringList.length == 0) {
+        if(addressList.length == 0) {
             return -1;
         }
-        for (uint i = 0; i <= StringList.length-1; i++){
-            if(_address == StringList[uint(i)]) {
+        for (uint i = 0; i <= addressList.length-1; i++){
+            if(_address == addressList[uint(i)]) {
                 return int(i);
             }
         }
