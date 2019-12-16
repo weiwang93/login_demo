@@ -47,13 +47,13 @@
                     <tr>
                         {% for key in profile %}
                           {% if key == "transaction_hash" %}
-                            <td>
+                            <td bgcolor={{transaction["color"]}}>
                               <a href="https://ropsten.etherscan.io/tx/{{transaction[key]}}">
                                 {{ transaction[key] }}
                               </a>
                             </td>
                           {% else %}
-                            <td scope="col">
+                            <td bgcolor={{transaction["color"]}} scope="col">
                                 {% if key in transaction %}
                                   {{ transaction[key] }}
                                 {% else %}

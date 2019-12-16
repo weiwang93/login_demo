@@ -28,7 +28,7 @@ class MongoDao():
         ################################
         # admin_address
         # admin_private_key
-        # status:pending valid invalid
+        # status: valid invalid
         # update_time: yyyy-mm-dd hh:mm:ss
         self.admin_collection = self.mongodb.get_collection("admin_collection")
         if (self.admin_collection.count() == 0):
@@ -110,8 +110,12 @@ class MongoDao():
 
     def update_admin_status(self, valid_admin):
         self.admin_collection.update(
-            filter={"admin_address": {"$in": valid_admin}},
-            update={"$set": { "status":"valid",  "update_time":self.get_time()} }
+            {"admin_address": {"$in": valid_admin}},
+            {"$set": { "status":"invalid",  "update_time":self.get_time()} }
+        )
+        self.admin_collection.update(
+            {"admin_address": {"$nin": valid_admin}},
+            {"$set": { "status":"valid",  "update_time":self.get_time()} }
         )
 
     # **********************

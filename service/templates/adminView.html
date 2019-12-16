@@ -85,32 +85,6 @@
             </table>
         </div>
 
-        <div class="col" style="margin-top:20px;">
-            <h5>
-              <font color="#FF0000">pending admin</font>
-            </h5>
-            <table class="table">
-              <tr>
-                  {% for key in profile %}
-                    <th>{{key}}</th>
-                  {% end %}
-              </tr>
-                  {% for admin in pending_admin %}
-                      <tr>
-                          {% for key in profile %}
-                            <td scope="col">
-                                {% if key in admin %}
-                                    {{ admin[key] }}
-                                {% else %}
-                                    None
-                                {% end%}
-                            </td>
-                          {% end %}
-                      </tr>
-                  {% end %}
-              </table>
-          </div>
-
           <div class="col" style="margin-top:20px;">
               <h5>
                 <font color="#FF0000">invalid admin</font>

@@ -28,9 +28,10 @@ class adminViewHandler(tornado.web.RequestHandler):
         # print(isValid)
         valid_admin = mongo_instance.get_admin_by_status("valid")
         invalid_admin = mongo_instance.get_admin_by_status("invalid")
-        pending_admin = mongo_instance.get_admin_by_status("pending")
+        # pending_admin = mongo_instance.get_admin_by_status("pending")
         self.render("templates/adminView.html", valid_admin=valid_admin, invalid_admin=invalid_admin,
-                    pending_admin=pending_admin, profile=mongo_instance.admin_collection_show_profile,
+                    # pending_admin=pending_admin,
+                    profile=mongo_instance.admin_collection_show_profile,
                     isValid=isValid, msg=msg, user_address=user_address)
 
 class transactionViewHandler(tornado.web.RequestHandler):
@@ -40,7 +41,17 @@ class transactionViewHandler(tornado.web.RequestHandler):
             self.render("templates/errorView.html", msg="该用户无效")
 
         transactions = mongo_instance.get_all_transaction()
-        self.render("templates/transactionView.html", profile=mongo_instance.transaction_collection_show_profile, transactions=transactions, user_address=user_address)
+
+        html_trans = []
+        for trans in transactions:
+            if(trans['status'] == 'success'):
+                trans['color'] = '#40FF00'
+            elif(trans['status'] == 'failed'):
+                trans['color'] = '#FF0000'
+            else:
+                trans['color'] = '#816868'
+            html_trans.append(trans)
+        self.render("templates/transactionView.html", profile=mongo_instance.transaction_collection_show_profile, transactions=html_trans, user_address=user_address)
 
 class appViewHandler(tornado.web.RequestHandler):
     def get(self):

@@ -2,6 +2,7 @@ from MongoDao import mongo_instance
 import configparser
 from contractUtils import ContractUtils
 from web3 import Web3, HTTPProvider
+import time
 
 def app_status_updater():
     all_apps = contract_util.get_all_apps()
@@ -45,8 +46,9 @@ if __name__ == "__main__":
     port = config.get("view", "port")
     web3 = Web3(HTTPProvider(config.get("contract", "rpc_url")))
     contract_util = ContractUtils("config.ini")
-    transaction_updater()
-    app_status_updater()
 
-    # while True:
-        # app_status_updater(contract_util)
+
+    while True:
+        transaction_updater()
+        app_status_updater()
+        time.sleep(5)
