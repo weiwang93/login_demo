@@ -17,10 +17,10 @@ def transaction_updater():
     for trans in transactions:
         print(trans)
         currentBlock = web3.eth.blockNumber
-        receipt = web3.eth.getTransactionReceipt(trans.transaction_hash)
+        receipt = web3.eth.getTransactionReceipt(trans['transaction_hash'])
         if receipt:
             # from pending to accepted
-            if trans.status == "pending":
+            if trans['status'] == "pending":
                 mongo_instance.update_transaction_status(trans['transaction_hash'], "acceptd")
             else:
                 deltaBlock = currentBlock - receipt['blockNumber']
@@ -29,7 +29,7 @@ def transaction_updater():
                     mongo_instance.update_transaction_status(trans['transaction_hash'], "success")
         else:
             # from accepted to reverted, i.e. fail
-            if trans.status != "pending":
+            if trans['status'] != "pending":
                 mongo_instance.update_transaction_status(trans['transaction_hash'], "failed")
 
 if __name__ == "__main__":

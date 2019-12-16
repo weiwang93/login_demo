@@ -74,7 +74,13 @@ class MongoDao():
         strTime = time.strftime("%Y-%m-%d %H:%M:%S", time_struct)
         return strTime
 
+    # **********************
     # functions
+    # **********************
+
+    # **********************
+    # admin related
+    # **********************
     def get_admin_by_status(self, status):
         return self.admin_collection.find({"status":status})
 
@@ -102,6 +108,9 @@ class MongoDao():
             self.admin_collection.update_one(filter={"admin_address": admin_address},
                                     update={"$set": {"status": status, "update_time":self.get_time()}})
 
+    # **********************
+    # transaction related
+    # **********************
     def create_transaction(self, transaction_hash, sender, msg):
         try:
             transaction = {
@@ -121,12 +130,16 @@ class MongoDao():
         return self.transaction_collection.find()
 
     def get_pending_transaction(self):
-        return self.transaction_collection.find({"status":"pending"})
+        return self.transaction_collection.find({"status": {"$in": ["pending", "acceptd"]}})
 
     def update_transaction_status(self, hash, status):
         self.transaction_collection.update_one(filter={'transaction_hash': hash},
                                         update={"$set": {"status": status, "update_time":self.get_time()}})
 
+
+    # **********************
+    # app related
+    # **********************
     def get_apps_status(self):
         return self.app_collection.find_one()
 
