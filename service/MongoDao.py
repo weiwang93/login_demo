@@ -108,6 +108,12 @@ class MongoDao():
             self.admin_collection.update_one(filter={"admin_address": admin_address},
                                     update={"$set": {"status": status, "update_time":self.get_time()}})
 
+    def update_admin_status(self, valid_admin):
+        self.admin_collection.update(
+            filter={"admin_address": {"$in": valid_admin}},
+            update={"$set": { "status":"valid",  "update_time":self.get_time()} }
+        )
+
     # **********************
     # transaction related
     # **********************

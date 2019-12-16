@@ -161,7 +161,7 @@ class addAppHandler(tornado.web.RequestHandler):
                 sender = config.get("base", "coinbase")
                 admin = mongo_instance.get_admin_by_address(sender)
 
-            transaction_hash = contract_util.authorize_app(admin['admin_private_key'], app_name)
+            transaction_hash = contract_util.add_app(admin['admin_private_key'], app_name)
 
             # add transaction
             msg = {"function": "add_app",
@@ -173,6 +173,7 @@ class addAppHandler(tornado.web.RequestHandler):
 
         except Exception as e:
             self.redirect("/appView?isValid={}&msg={}&user_address={}".format(0, '添加app失败{}'.format(e), sender))
+            traceback.print_exc()
 
 
 def router():

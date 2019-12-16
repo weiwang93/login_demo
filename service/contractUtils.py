@@ -56,7 +56,7 @@ class ContractUtils():
 
     def add_app(self, privateKey, app_name):
         acct = self.web3.eth.account.privateKeyToAccount(privateKey)
-        construct_txn = contract.functions.addApp(app_name).buildTransaction({
+        construct_txn = self.contract.functions.addApp(app_name).buildTransaction({
             'from': acct.address,
             'gas': 500000,
             'gasPrice': 2000000000,
@@ -97,13 +97,13 @@ class ContractUtils():
         return tx_hash
 
     def get_app_stratus(self, app_name):
-        return self.contract.functions.getAppStatus(app_name)
+        return self.contract.functions.getAppStatus(app_name).call()
 
-    def get_all_apps(self, app_name):
-        return self.contract.functions.getAllApp()
+    def get_all_apps(self):
+        return self.contract.functions.getAllApp().call()
 
-    def get_authenticated_apps(self, app_name):
-        return self.contract.functions.getAuthenticatedApp()
+    def get_authenticated_apps(self):
+        return self.contract.functions.getAuthenticatedApp().call()
 
 
 # contract_instance = ContractUtils('config.ini')
