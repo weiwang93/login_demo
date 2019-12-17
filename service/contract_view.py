@@ -1,6 +1,3 @@
-from utils.MongoDao import mongo_instance
-from utils.contractUtils import ContractUtils
-from utils.logger import logger
 import tornado.ioloop
 import tornado.web
 import tornado.template
@@ -9,6 +6,10 @@ import tornado.httpserver
 import json
 import traceback
 import configparser
+
+from utils.MongoDao import mongo_instance
+from utils.contractUtils import ContractUtils
+from utils.logger import logger
 
 class adminViewHandler(tornado.web.RequestHandler):
     def get(self):
@@ -71,7 +72,6 @@ class appViewHandler(tornado.web.RequestHandler):
                     is_admin=is_admin,
                     is_valid=is_valid, msg=msg, user_address=user_address)
 
-
 class addAdminHandler(tornado.web.RequestHandler):
     def post(self):
         try:
@@ -82,15 +82,16 @@ class addAdminHandler(tornado.web.RequestHandler):
             if admin == None:
                 self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(0, '增加admin失败,您没有权限', sender))
             if(contract_util.check_private_key(admin_address, admin_private_key)):
-                if(not mongo_instance.is_admin_invalid(admin_address)):
-                    self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(0, '增加admin失败,admin已经存在', sender))
+                if(mongo_instance.is_admin_valid(admin_address)):
+                    self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(0,
+                                                                                     '增加admin失败,admin已经存在', sender))
                 else:
                     transaction_hash = contract_util.add_admin(admin['admin_private_key'], admin_address)
-                    mongo_instance.create_or_update_admin(admin_address, admin_private_key,'pending')
+                    mongo_instance.create_or_update_admin(admin_address, admin_private_key, 'invalid')
                     # add transaction
                     msg = {"function": "add_admin",
                         "admin_address": admin_address,
-                        "admin_private_key": admin_private_key,
+                        # "admin_private_key": admin_private_key,
                     }
                     mongo_instance.create_transaction(transaction_hash, sender, json.dumps(msg))
                     self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(1, '增加admin成功,transaction_hash:'+str(transaction_hash), sender))

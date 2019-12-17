@@ -87,11 +87,6 @@ class MongoDao():
     def get_admin_by_address(self, address):
         return self.admin_collection.find_one({"admin_address": address})
 
-    def is_admin_invalid(self, admin_address):
-        if(self.admin_collection.find({"admin_address": admin_address, "status": "invalid"}).count() == 0):
-            return False
-        return True
-
     def is_admin_valid(self, admin_address):
         if(self.admin_collection.find({"admin_address": admin_address, "status": "valid"}).count() == 0):
             return False
@@ -109,11 +104,11 @@ class MongoDao():
                                     update={"$set": {"status": status, "update_time": self.get_time()}})
 
     def update_admin_status(self, valid_admin):
-        self.admin_collection.update(
+        self.admin_collection.update_many(
             {"admin_address": {"$in": valid_admin}},
             {"$set": {"status": "valid",  "update_time": self.get_time()}}
         )
-        self.admin_collection.update(
+        self.admin_collection.update_many(
             {"admin_address": {"$nin": valid_admin}},
             {"$set": {"status": "invalid",  "update_time": self.get_time()}}
         )
