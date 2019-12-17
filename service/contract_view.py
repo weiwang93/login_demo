@@ -1,5 +1,6 @@
 from utils.MongoDao import mongo_instance
 from utils.contractUtils import ContractUtils
+from utils.logger import logger
 import tornado.ioloop
 import tornado.web
 import tornado.template
@@ -211,6 +212,7 @@ if __name__ == "__main__":
     # application
     print("http://localhost:{}/adminView?user_address={}".format(port, config.get('base', 'coinbase')))
 
+    logger.info("http://localhost:{}/adminView?user_address={}".format(port, config.get('base', 'coinbase')))
     contract_util = ContractUtils("config.ini")
     app = router()
     app.listen(port)
