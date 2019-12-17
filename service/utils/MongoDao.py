@@ -66,6 +66,8 @@ class MongoDao():
         # update_time
         self.app_collection = self.mongodb.get_collection("app_collection")
         self.app_collection_show_profile = ['app_name', 'status', 'update_time']
+        if(self.app_collection.count() == 0):
+            self.update_apps_status([], [], [])
 
     def get_time(self):
         now = int(time.time())
@@ -142,7 +144,7 @@ class MongoDao():
 
     def update_transaction_status(self, hash, status):
         self.transaction_collection.update_one(filter={'transaction_hash': hash},
-                                        update={"$set": {"status": status, "update_time":self.get_time()}})
+                                        update={"$set": {"status": status, "update_time": self.get_time()}})
 
 
     # **********************
@@ -158,8 +160,11 @@ class MongoDao():
             "nonauthed_apps": nonauthed_apps,
             "update_time": self.get_time()
         }
-        self.app_collection.update_one(filter={},
-                                    update={"$set": status})
+        if self.app_collection.count() == 0:
+            self.app_collection.insert(status)
+        else:
+            self.app_collection.update_one(filter={},
+                                        update={"$set": status})
 
 
 mongo_instance = MongoDao()
