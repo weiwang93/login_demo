@@ -105,6 +105,6 @@ class ContractUtils():
         return self.contract.functions.getAuthenticatedApp().call()
 
 
-# contract_instance = ContractUtils('config.ini')
+# contract_instance = ContractUtils('../config.ini')
 # print(contract_instance.get_all_admin())
 # print(contract_instance.check_private_key('0xA4438a2d06E9eC4A3f4Dba8bb77A4Ec9680b5096', '603C6161347D1A071A2EE7C1430EFB67A0734F821722FF0D6FFF8CA7553E076'))

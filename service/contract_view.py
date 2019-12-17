@@ -1,5 +1,5 @@
-from MongoDao import mongo_instance
-from contractUtils import ContractUtils
+from utils.MongoDao import mongo_instance
+from utils.contractUtils import ContractUtils
 import tornado.ioloop
 import tornado.web
 import tornado.template
@@ -15,23 +15,23 @@ class adminViewHandler(tornado.web.RequestHandler):
         if not mongo_instance.is_admin_valid(user_address):
             self.render("templates/errorView.html", msg="该用户无效")
 
-        isValid = self.get_arguments('isValid')
+        is_valid = self.get_arguments('is_valid')
         msg = self.get_arguments('msg')
-        if (len(isValid) > 0 and len(msg) > 0):
-            isValid = int(isValid[0])
+        if (len(is_valid) > 0 and len(msg) > 0):
+            is_valid = int(is_valid[0])
             msg = msg[0]
         else:
-            isValid = None
+            is_valid = None
             msg = None
         # print(msg)
-        # print(isValid)
+        # print(is_valid)
         valid_admin = mongo_instance.get_admin_by_status("valid")
         invalid_admin = mongo_instance.get_admin_by_status("invalid")
         # pending_admin = mongo_instance.get_admin_by_status("pending")
         self.render("templates/adminView.html", valid_admin=valid_admin, invalid_admin=invalid_admin,
                     # pending_admin=pending_admin,
                     profile=mongo_instance.admin_collection_show_profile,
-                    isValid=isValid, msg=msg, user_address=user_address)
+                    is_valid=is_valid, msg=msg, user_address=user_address)
 
 class transactionViewHandler(tornado.web.RequestHandler):
     def get(self):
@@ -55,20 +55,20 @@ class transactionViewHandler(tornado.web.RequestHandler):
 class appViewHandler(tornado.web.RequestHandler):
     def get(self):
         user_address = self.get_argument('user_address', default='')
-        isValid = self.get_arguments('isValid')
+        is_valid = self.get_arguments('is_valid')
         is_admin = mongo_instance.is_admin_valid(user_address)
         msg = self.get_arguments('msg')
-        if (len(isValid) > 0 and len(msg) > 0):
-            isValid = int(isValid[0])
+        if (len(is_valid) > 0 and len(msg) > 0):
+            is_valid = int(is_valid[0])
             msg = msg[0]
         else:
-            isValid = None
+            is_valid = None
             msg = None
 
         apps_status = mongo_instance.get_apps_status()
         self.render("templates/appView.html", apps_status=apps_status, profile=mongo_instance.app_collection_show_profile,
                     is_admin=is_admin,
-                    isValid=isValid, msg=msg, user_address=user_address)
+                    is_valid=is_valid, msg=msg, user_address=user_address)
 
 
 class addAdminHandler(tornado.web.RequestHandler):
@@ -79,10 +79,10 @@ class addAdminHandler(tornado.web.RequestHandler):
             sender = self.get_argument('sender', default='')
             admin = mongo_instance.get_admin_by_address(sender)
             if admin == None:
-                self.redirect("/adminView?isValid={}&msg={}&user_address={}".format(0, '增加admin失败,您没有权限', sender))
+                self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(0, '增加admin失败,您没有权限', sender))
             if(contract_util.check_private_key(admin_address, admin_private_key)):
                 if(not mongo_instance.is_admin_invalid(admin_address)):
-                    self.redirect("/adminView?isValid={}&msg={}&user_address={}".format(0, '增加admin失败,admin已经存在', sender))
+                    self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(0, '增加admin失败,admin已经存在', sender))
                 else:
                     transaction_hash = contract_util.add_admin(admin['admin_private_key'], admin_address)
                     mongo_instance.create_or_update_admin(admin_address, admin_private_key,'pending')
@@ -92,11 +92,11 @@ class addAdminHandler(tornado.web.RequestHandler):
                         "admin_private_key": admin_private_key,
                     }
                     mongo_instance.create_transaction(transaction_hash, sender, json.dumps(msg))
-                    self.redirect("/adminView?isValid={}&msg={}&user_address={}".format(1, '增加admin成功,transaction_hash:'+str(transaction_hash), sender))
+                    self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(1, '增加admin成功,transaction_hash:'+str(transaction_hash), sender))
             else:
-                self.redirect("/adminView?isValid={}&msg={}&user_address={}".format(0, '增加admin失败,地址私钥不匹配', sender))
+                self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(0, '增加admin失败,地址私钥不匹配', sender))
         except Exception as e:
-            self.redirect("/adminView?isValid={}&msg={}&user_address={}".format(0, '增加admin失败{}'.format(e), sender))
+            self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(0, '增加admin失败{}'.format(e), sender))
 
 class deleteAdminHandler(tornado.web.RequestHandler):
     def get(self):
@@ -105,16 +105,16 @@ class deleteAdminHandler(tornado.web.RequestHandler):
             sender = self.get_argument('sender', default='')
             admin = mongo_instance.get_admin_by_address(sender)
             if admin == None:
-                self.redirect("/adminView?isValid={}&msg={}&user_address={}".format(0, '删除admin失败,您没有权限', sender))
+                self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(0, '删除admin失败,您没有权限', sender))
 
             transaction_hash = contract_util.del_admin(admin['admin_private_key'], admin_address)
             msg = {"function": "delete_admin",
                 "admin_address": admin_address,
             }
             mongo_instance.create_transaction(transaction_hash, sender, json.dumps(msg))
-            self.redirect("/adminView?isValid={}&msg={}&user_address={}".format(1, '删除admin成功,transaction_hash:'+str(transaction_hash), sender))
+            self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(1, '删除admin成功,transaction_hash:'+str(transaction_hash), sender))
         except Exception as e:
-            self.redirect("/adminView?isValid={}&msg={}&user_address={}".format(0, '删除admin失败{}'.format(e), sender))
+            self.redirect("/adminView?is_valid={}&msg={}&user_address={}".format(0, '删除admin失败{}'.format(e), sender))
 
 class prohibitAppHandler(tornado.web.RequestHandler):
     def post(self):
@@ -123,7 +123,7 @@ class prohibitAppHandler(tornado.web.RequestHandler):
             sender = self.get_argument('sender', default='')
             admin = mongo_instance.get_admin_by_address(sender)
             if admin == None:
-                self.redirect("/appView?isValid={}&msg={}&user_address={}".format(0, '取消认证失败,您没有权限', sender))
+                self.redirect("/appView?is_valid={}&msg={}&user_address={}".format(0, '取消认证失败,您没有权限', sender))
 
             transaction_hash = contract_util.prohibit_app(admin['admin_private_key'], app_name)
 
@@ -133,10 +133,10 @@ class prohibitAppHandler(tornado.web.RequestHandler):
             }
 
             mongo_instance.create_transaction(transaction_hash, sender, json.dumps(msg))
-            self.redirect("/appView?isValid={}&msg={}&user_address={}".format(1, '取消认证成功,transaction_hash:'+str(transaction_hash), sender))
+            self.redirect("/appView?is_valid={}&msg={}&user_address={}".format(1, '取消认证成功,transaction_hash:'+str(transaction_hash), sender))
 
         except Exception as e:
-            self.redirect("/appView?isValid={}&msg={}&user_address={}".format(0, '取消认证失败{}'.format(e), sender))
+            self.redirect("/appView?is_valid={}&msg={}&user_address={}".format(0, '取消认证失败{}'.format(e), sender))
 
 class authorizeAppHandler(tornado.web.RequestHandler):
     def post(self):
@@ -145,7 +145,7 @@ class authorizeAppHandler(tornado.web.RequestHandler):
             sender = self.get_argument('sender', default='')
             admin = mongo_instance.get_admin_by_address(sender)
             if admin == None:
-                self.redirect("/appView?isValid={}&msg={}&user_address={}".format(0, '认证失败,您没有权限', sender))
+                self.redirect("/appView?is_valid={}&msg={}&user_address={}".format(0, '认证失败,您没有权限', sender))
 
             transaction_hash = contract_util.authorize_app(admin['admin_private_key'], app_name)
 
@@ -155,10 +155,10 @@ class authorizeAppHandler(tornado.web.RequestHandler):
             }
 
             mongo_instance.create_transaction(transaction_hash, sender, json.dumps(msg))
-            self.redirect("/appView?isValid={}&msg={}&user_address={}".format(1, '认证成功,transaction_hash:'+str(transaction_hash), sender))
+            self.redirect("/appView?is_valid={}&msg={}&user_address={}".format(1, '认证成功,transaction_hash:'+str(transaction_hash), sender))
 
         except Exception as e:
-            self.redirect("/appView?isValid={}&msg={}&user_address={}".format(0, '认证失败{}'.format(e), sender))
+            self.redirect("/appView?is_valid={}&msg={}&user_address={}".format(0, '认证失败{}'.format(e), sender))
 
 
 class addAppHandler(tornado.web.RequestHandler):
@@ -179,10 +179,10 @@ class addAppHandler(tornado.web.RequestHandler):
             }
 
             mongo_instance.create_transaction(transaction_hash, sender, json.dumps(msg))
-            self.redirect("/appView?isValid={}&msg={}&user_address={}".format(1, '添加app成功,transaction_hash:'+str(transaction_hash), sender))
+            self.redirect("/appView?is_valid={}&msg={}&user_address={}".format(1, '添加app成功,transaction_hash:'+str(transaction_hash), sender))
 
         except Exception as e:
-            self.redirect("/appView?isValid={}&msg={}&user_address={}".format(0, '添加app失败{}'.format(e), sender))
+            self.redirect("/appView?is_valid={}&msg={}&user_address={}".format(0, '添加app失败{}'.format(e), sender))
             traceback.print_exc()
 
 

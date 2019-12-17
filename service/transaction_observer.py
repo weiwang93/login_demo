@@ -1,7 +1,7 @@
-from MongoDao import mongo_instance
-import configparser
-from contractUtils import ContractUtils
+from utils.MongoDao import mongo_instance
+from utils.contractUtils import ContractUtils
 from web3 import Web3, HTTPProvider
+import configparser
 import time
 
 def app_status_updater():

@@ -81,23 +81,23 @@ class MongoDao():
     # admin related
     # **********************
     def get_admin_by_status(self, status):
-        return self.admin_collection.find({"status":status})
+        return self.admin_collection.find({"status": status})
 
     def get_admin_by_address(self, address):
-        return self.admin_collection.find_one({"admin_address":address})
+        return self.admin_collection.find_one({"admin_address": address})
 
     def is_admin_invalid(self, admin_address):
-        if(self.admin_collection.find({"admin_address":admin_address, "status":"invalid"}).count() == 0):
+        if(self.admin_collection.find({"admin_address": admin_address, "status": "invalid"}).count() == 0):
             return False
         return True
 
     def is_admin_valid(self, admin_address):
-        if(self.admin_collection.find({"admin_address":admin_address, "status":"valid"}).count() == 0):
+        if(self.admin_collection.find({"admin_address": admin_address, "status": "valid"}).count() == 0):
             return False
         return True
 
     def create_or_update_admin(self, admin_address, admin_private_key, status):
-        if(self.admin_collection.find({"admin_address":admin_address}).count() == 0):
+        if(self.admin_collection.find({"admin_address": admin_address}).count() == 0):
             admin = {"admin_address": admin_address,
                     "admin_private_key": admin_private_key,
                     "status": status,
@@ -105,7 +105,7 @@ class MongoDao():
             self.admin_collection.insert(admin)
         else:
             self.admin_collection.update_one(filter={"admin_address": admin_address},
-                                    update={"$set": {"status": status, "update_time":self.get_time()}})
+                                    update={"$set": {"status": status, "update_time": self.get_time()}})
 
     def update_admin_status(self, valid_admin):
         self.admin_collection.update(

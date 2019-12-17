@@ -32,9 +32,9 @@
 
     <main role="main" class="container">
         <div class="col">
-            {% if isValid == 1 %}
+            {% if is_valid == 1 %}
             <div id="validate-result" class="alert alert-success" role="alert">{{ msg }}</div>
-            {% elif isValid == 0 %}
+            {% elif is_valid == 0 %}
                 <div id="validate-result" class="alert alert-danger" role="alert">{{ msg }}</div>
             {% end %}
         </div>
