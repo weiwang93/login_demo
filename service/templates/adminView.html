@@ -71,7 +71,7 @@
                               {% end%}
                           </td>
                         {% end %}
-                        {%if admin['admin_address'] != user_address%}
+                        {%if admin['admin_address'] != user_address and admin['admin_address'] != owner%}
                           <td>
                               <form method="get" class="deleteAdmin" action="/deleteAdmin">
                                   <input type="hidden" name="admin_address" value="{{ admin['admin_address'] }}">

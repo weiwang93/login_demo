@@ -29,11 +29,12 @@ class adminViewHandler(tornado.web.RequestHandler):
         # print(is_valid)
         valid_admin = mongo_instance.get_admin_by_status("valid")
         invalid_admin = mongo_instance.get_admin_by_status("invalid")
+        owner = config.get('base', 'coinbase')
         # pending_admin = mongo_instance.get_admin_by_status("pending")
         self.render("templates/adminView.html", valid_admin=valid_admin, invalid_admin=invalid_admin,
                     # pending_admin=pending_admin,
                     profile=mongo_instance.admin_collection_show_profile,
-                    is_valid=is_valid, msg=msg, user_address=user_address)
+                    is_valid=is_valid, msg=msg, user_address=user_address, owner=owner)
 
 class transactionViewHandler(tornado.web.RequestHandler):
     def get(self):
