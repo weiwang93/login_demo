@@ -1,6 +1,5 @@
 from pymongo import MongoClient
 import pymongo
-from datetime import datetime
 import time
 import traceback
 import configparser

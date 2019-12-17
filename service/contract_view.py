@@ -6,7 +6,6 @@ import tornado.template
 import tornado.httpserver
 
 import json
-import time
 import traceback
 import configparser
 
