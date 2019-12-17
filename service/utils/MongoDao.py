@@ -51,6 +51,9 @@ class MongoDao():
                                           unique=True)
             self.admin_collection.create_index([("sender", pymongo.DESCENDING)])
             self.admin_collection.create_index([("status", pymongo.DESCENDING)])
+            # add owner
+            self.create_or_update_admin(config.get('base', 'coinbase'), config.get('base', 'private_key'), 'valid')
+
         self.transaction_collection_show_profile = ['transaction_hash', 'sender', 'status', 'msg', 'update_time']
 
 
@@ -64,14 +67,10 @@ class MongoDao():
         self.app_collection = self.mongodb.get_collection("app_collection")
         self.app_collection_show_profile = ['app_name', 'status', 'update_time']
 
-        # add owner
-        self.create_or_update_admin(config.get('base', 'coinbase'), config.get('base', 'private_key'), 'valid')
-
     def get_time(self):
         now = int(time.time())
-        time_struct = time.localtime(now)
-        strTime = time.strftime("%Y-%m-%d %H:%M:%S", time_struct)
-        return strTime
+        str_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now))
+        return str_time
 
     # **********************
     # functions
@@ -110,11 +109,11 @@ class MongoDao():
     def update_admin_status(self, valid_admin):
         self.admin_collection.update(
             {"admin_address": {"$in": valid_admin}},
-            {"$set": {"status": "valid",  "update_time": self.get_time()} }
+            {"$set": {"status": "valid",  "update_time": self.get_time()}}
         )
         self.admin_collection.update(
             {"admin_address": {"$nin": valid_admin}},
-            {"$set": {"status": "invalid",  "update_time": self.get_time()} }
+            {"$set": {"status": "invalid",  "update_time": self.get_time()}}
         )
 
     # **********************
